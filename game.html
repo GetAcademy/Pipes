@@ -21,7 +21,7 @@
             line-height: 59px;
             font-weight: bolder;
             user-select: none;
-            border: rgb(175, 86, 40) 1px solid;
+            border: rgb(215, 186, 125) 1px solid;
             color: lightgray;
         }
     </style>
@@ -39,17 +39,19 @@
         // Model 
         const gameModel = {
             pipes: [],
+            startIndex: 10,
+            finishIndex: 389,
             pipeTypes: [
-                'vertical', 'horizontal',
-                'southToEast', 'eastToNorth',
-                'northToWest', 'westToSouth',
+                'north2south', 'west2east',
+                'south2east', 'east2north',
+                'north2west', 'west2south',
             ],
         };
 
         // View
         const pipeSymbols = {
-            vertical: '┃',
-            horizontal: '━',
+            northToSouth: '┃',
+            west2east: '━',
             southToEast: '╭',
             eastToNorth: '╰',
             northToWest: '╯',
@@ -85,8 +87,23 @@
             const newPipeTypeIndex = (pipeTypeIndex + 1) % gameModel.pipeTypes.length;
             const newPipe = gameModel.pipeTypes[newPipeTypeIndex];
             gameModel.pipes[index] = newPipe;
+            checkForWin();
             updateUserInterface();
         }
+
+        function checkForWin() {
+            const path = findPath('west', gameModel.startIndex, gameModel.finishIndex);
+        }
+
+        function findPathTo(comfingFrom, currentIndex, toIndex) {
+            const currentPipe = gameModel.pipeTypes[currentIndex];
+            if (!currentPipe.includes(comfingFrom)) return null;
+            const possibleMoves = currentPipe.split('2');
+            if (possibleMoves[0] !== comfingFrom){
+                const path = findPathTo()
+            }
+        }
+
 
     </script>
 </body>
