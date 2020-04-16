@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{background-color: rgb(30,30,30);}
+        #game {
+            display: grid;
+            grid-template-columns: repeat(10, 62px);
+        }
+        .pipe{
+            font-family: monospace;
+            font-size: 60px;
+            line-height: 60px;
+            font-weight: bolder;
+            user-select: none;
+            border: rgb(175, 86, 40) 1px solid;
+            color: lightgray
+        }
+    </style>
+</head>
+
+<body onload="start()">
+    <div id="game"></div>
+
+    <script>
+        function start() {
+            initPipes(10);
+            updateUserInterface();
+        }
+
+        // Model 
+        const gameModel = {
+            pipes: [],
+            pipeTypes: [
+                'vertical', 'horizontal',
+                'southToEast', 'eastToNorth',
+                'northToWest', 'westToSouth',
+            ],
+        };
+
+        // View
+        const pipeSymbols = {
+            vertical: '┃',
+            horizontal: '━',
+            southToEast: '╭',
+            eastToNorth: '╰',
+            northToWest: '╯',
+            westToSouth: '╮',
+        };
+        function updateUserInterface() {
+            let pipesHtml = '';
+            for (let pipe of gameModel.pipes) {
+                const symbol = pipeSymbols[pipe];
+                pipesHtml += `<div class="pipe">${symbol}</div>`;
+            }
+            document.getElementById('game').innerHTML = pipesHtml;
+        }
+
+        // Controller
+        function initPipes(size) {
+            const totalPipeCount = size * size;
+            for (let i = 0; i < totalPipeCount; i++) {
+                gameModel.pipes.push(getRandomPipe());
+            }
+        }
+
+        function getRandomPipe() {
+            const maxValue = gameModel.pipeTypes.length;
+            const randomIndex = Math.floor(Math.random() * maxValue);
+            return gameModel.pipeTypes[randomIndex];
+        }
+
+    </script>
+</body>
+
+</html>
