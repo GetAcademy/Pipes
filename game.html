@@ -50,13 +50,14 @@
 
         // View
         const pipeSymbols = {
-            northToSouth: '┃',
+            north2south: '┃',
             west2east: '━',
-            southToEast: '╭',
-            eastToNorth: '╰',
-            northToWest: '╯',
-            westToSouth: '╮',
+            south2east: '╭',
+            east2north: '╰',
+            north2west: '╯',
+            west2south: '╮',
         };
+
         function updateUserInterface() {
             let pipesHtml = '';
             for (let i = 0; i < gameModel.pipes.length; i++) {
@@ -87,22 +88,21 @@
             const newPipeTypeIndex = (pipeTypeIndex + 1) % gameModel.pipeTypes.length;
             const newPipe = gameModel.pipeTypes[newPipeTypeIndex];
             gameModel.pipes[index] = newPipe;
-            checkForWin();
+            //checkForWin();
             updateUserInterface();
         }
 
-        function checkForWin() {
-            const path = findPath('west', gameModel.startIndex, gameModel.finishIndex);
-        }
+        // function checkForWin() {
+        //     const path = findPath('west', gameModel.startIndex, gameModel.finishIndex);
+        // }
 
-        function findPathTo(comfingFrom, currentIndex, toIndex) {
-            const currentPipe = gameModel.pipeTypes[currentIndex];
-            if (!currentPipe.includes(comfingFrom)) return null;
-            const possibleMoves = currentPipe.split('2');
-            if (possibleMoves[0] !== comfingFrom){
-                const path = findPathTo()
-            }
-        }
+        // function findPathTo(comfingFrom, currentIndex, toIndex) {
+        //     const currentPipe = gameModel.pipeTypes[currentIndex];
+        //     if (!currentPipe.includes(comfingFrom)) return null;
+        //     const possibleMoves = currentPipe.split('2');
+        //     const move = possibleMoves[possibleMoves[0] === comfingFrom ? 1 : 0];
+
+        // }
 
 
     </script>
