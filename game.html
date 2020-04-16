@@ -6,19 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        body{background-color: rgb(30,30,30);}
+        body {
+            background-color: rgb(30, 30, 30);
+        }
+
         #game {
             display: grid;
-            grid-template-columns: repeat(10, 62px);
+            grid-template-columns: repeat(10, 60px);
         }
-        .pipe{
+
+        .pipe {
             font-family: monospace;
-            font-size: 60px;
-            line-height: 60px;
+            font-size: 57px;
+            line-height: 59px;
             font-weight: bolder;
             user-select: none;
             border: rgb(175, 86, 40) 1px solid;
-            color: lightgray
+            color: lightgray;
         }
     </style>
 </head>
@@ -53,9 +57,10 @@
         };
         function updateUserInterface() {
             let pipesHtml = '';
-            for (let pipe of gameModel.pipes) {
+            for (let i = 0; i < gameModel.pipes.length; i++) {
+                const pipe = gameModel.pipes[i];
                 const symbol = pipeSymbols[pipe];
-                pipesHtml += `<div class="pipe">${symbol}</div>`;
+                pipesHtml += `<div class="pipe" onclick="nextSymbol(${i})">${symbol}</div>`;
             }
             document.getElementById('game').innerHTML = pipesHtml;
         }
@@ -72,6 +77,15 @@
             const maxValue = gameModel.pipeTypes.length;
             const randomIndex = Math.floor(Math.random() * maxValue);
             return gameModel.pipeTypes[randomIndex];
+        }
+
+        function nextSymbol(index) {
+            const pipe = gameModel.pipes[index];
+            const pipeTypeIndex = gameModel.pipeTypes.indexOf(pipe);
+            const newPipeTypeIndex = (pipeTypeIndex + 1) % gameModel.pipeTypes.length;
+            const newPipe = gameModel.pipeTypes[newPipeTypeIndex];
+            gameModel.pipes[index] = newPipe;
+            updateUserInterface();
         }
 
     </script>
