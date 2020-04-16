@@ -24,6 +24,10 @@
             border: rgb(215, 186, 125) 1px solid;
             color: lightgray;
         }
+
+        .path {
+            color: greenyellow;
+        }
     </style>
 </head>
 
@@ -33,12 +37,14 @@
     <script>
         function start() {
             initPipes(10);
+            checkForWin();
             updateUserInterface();
         }
 
         // Model 
         const gameModel = {
             pipes: [],
+            path: [],
             startIndex: 10,
             finishIndex: 389,
             pipeTypes: [
@@ -63,12 +69,20 @@
             for (let i = 0; i < gameModel.pipes.length; i++) {
                 const pipe = gameModel.pipes[i];
                 const symbol = pipeSymbols[pipe];
-                pipesHtml += `<div class="pipe" onclick="nextSymbol(${i})">${symbol}</div>`;
+                const isInPath = gameModel.path.includes(i);
+                const pathCss = isInPath ? 'path' : '';
+                pipesHtml += `<div class="pipe ${pathCss}" onclick="nextSymbol(${i})">${symbol}</div>`;
             }
             document.getElementById('game').innerHTML = pipesHtml;
         }
 
         // Controller
+        const flip = {
+            north: 'south',
+            south: 'north',
+            east: 'west',
+            west: 'east',
+        };
         function initPipes(size) {
             const totalPipeCount = size * size;
             for (let i = 0; i < totalPipeCount; i++) {
@@ -88,23 +102,33 @@
             const newPipeTypeIndex = (pipeTypeIndex + 1) % gameModel.pipeTypes.length;
             const newPipe = gameModel.pipeTypes[newPipeTypeIndex];
             gameModel.pipes[index] = newPipe;
-            //checkForWin();
+            checkForWin();
             updateUserInterface();
         }
 
-        // function checkForWin() {
-        //     const path = findPath('west', gameModel.startIndex, gameModel.finishIndex);
-        // }
+        function checkForWin() {
+            let currentIndex = gameModel.startIndex;
+            let direction = 'east';
+            gameModel.path = [];
+            do {
+                const currentPipe = gameModel.pipes[currentIndex];
+                direction = flip[direction];
+                if (!currentPipe.includes(direction)) return;
+                gameModel.path.push(currentIndex);
+                direction = currentPipe.replace(direction, '').replace('2', '');
+                currentIndex = go(direction, currentIndex);
+            } while (currentIndex !== null);
+        }
 
-        // function findPathTo(comfingFrom, currentIndex, toIndex) {
-        //     const currentPipe = gameModel.pipeTypes[currentIndex];
-        //     if (!currentPipe.includes(comfingFrom)) return null;
-        //     const possibleMoves = currentPipe.split('2');
-        //     const move = possibleMoves[possibleMoves[0] === comfingFrom ? 1 : 0];
-
-        // }
-
-
+        function go(direction, index) {
+            const rowIndex = Math.floor(index / 10);
+            const colIndex = index % 10;
+            if (direction === 'north') return rowIndex === 0 ? null : index - 10;
+            if (direction === 'south') return rowIndex === 9 ? null : index + 10;
+            if (direction === 'west') return colIndex === 0 ? null : index - 1;
+            if (direction === 'east') return colIndex === 9 ? null : index + 1;
+        }        
+    
     </script>
 </body>
 
