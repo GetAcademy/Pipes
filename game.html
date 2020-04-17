@@ -142,6 +142,7 @@
             let currentIndex = gameModel.startIndex;
             let direction = 'south';
             gameModel.path = [];
+            gameModel.hasWon = false;
             do {
                 const currentPipe = gameModel.pipes[currentIndex];
                 direction = flip[direction];
@@ -149,9 +150,10 @@
                 gameModel.path.push(currentIndex);
                 direction = currentPipe.replace(direction, '').replace('2', '');
                 currentIndex = go(direction, currentIndex);
-            } while (currentIndex !== null && currentIndex !== gameModel.finishIndex);
-            gameModel.hasWon = currentIndex === gameModel.finishIndex && gameModel.pipes[currentIndex].includes('south');
-            if (gameModel.hasWon) gameModel.path.push(currentIndex);
+            } while (currentIndex !== null);
+            const lastIndex = gameModel.path[gameModel.path.length - 1];
+            gameModel.hasWon = lastIndex === gameModel.finishIndex && gameModel.pipes[lastIndex].includes('south');
+
         }
 
         function go(direction, index) {
