@@ -10,7 +10,7 @@
             background-color: rgb(30, 30, 30);
         }
 
-        #game {
+        .game {
             display: grid;
             grid-template-columns: repeat(10, 60px);
         }
@@ -25,8 +25,19 @@
             color: lightgray;
         }
 
+        .noBorder {
+            border: none;
+            text-align: center;
+            color: greenyellow;
+        }
+
         .path {
             color: greenyellow;
+        }
+
+        .won {
+            color: greenyellow;
+            font-size: 250%;
         }
     </style>
 </head>
@@ -66,6 +77,7 @@
 
         function updateUserInterface() {
             let pipesHtml = '';
+            pipesHtml += createMarkerRow(gameModel.startIndex);
             for (let i = 0; i < gameModel.pipes.length; i++) {
                 const pipe = gameModel.pipes[i];
                 const symbol = pipeSymbols[pipe];
@@ -73,9 +85,23 @@
                 const pathCss = isInPath ? 'path' : '';
                 pipesHtml += `<div class="pipe ${pathCss}" onclick="nextSymbol(${i})">${symbol}</div>`;
             }
-            document.getElementById('game').innerHTML = pipesHtml;
+            pipesHtml += createMarkerRow(gameModel.finishIndex - 90);
+            const hasWonTxt = gameModel.hasWon ? 'Du har koblet riktig - gratulerer! 😊' : '';
+            document.getElementById('game').innerHTML = `
+                <div class="game">${pipesHtml}</div>
+                <div class="won">${hasWonTxt}</div>
+                <button onclick="location.reload()">Start på nytt</button>
+                `;
         }
 
+        function createMarkerRow(markerIndex) {
+            let html = '';
+            for (let i = 0; i < 10; i++) {
+                const symbol = i !== markerIndex ? '' : '▼';
+                html += `<div class="pipe noBorder">${symbol}</div>`;
+            }
+            return html;
+        }
         // Controller
         const flip = {
             north: 'south',
@@ -88,12 +114,18 @@
             for (let i = 0; i < totalPipeCount; i++) {
                 gameModel.pipes.push(getRandomPipe());
             }
+            gameModel.startIndex = randomNumber(10);
+            gameModel.finishIndex = randomNumber(10) + 90;
         }
 
         function getRandomPipe() {
             const maxValue = gameModel.pipeTypes.length;
-            const randomIndex = Math.floor(Math.random() * maxValue);
+            const randomIndex = randomNumber(maxValue);
             return gameModel.pipeTypes[randomIndex];
+        }
+
+        function randomNumber(maxValue) {
+            return Math.floor(Math.random() * maxValue);
         }
 
         function nextSymbol(index) {
@@ -108,7 +140,7 @@
 
         function checkForWin() {
             let currentIndex = gameModel.startIndex;
-            let direction = 'east';
+            let direction = 'south';
             gameModel.path = [];
             do {
                 const currentPipe = gameModel.pipes[currentIndex];
@@ -117,7 +149,9 @@
                 gameModel.path.push(currentIndex);
                 direction = currentPipe.replace(direction, '').replace('2', '');
                 currentIndex = go(direction, currentIndex);
-            } while (currentIndex !== null);
+            } while (currentIndex !== null && currentIndex !== gameModel.finishIndex);
+            gameModel.hasWon = currentIndex === gameModel.finishIndex && gameModel.pipes[currentIndex].includes('south');
+            if (gameModel.hasWon) gameModel.path.push(currentIndex);
         }
 
         function go(direction, index) {
@@ -127,8 +161,8 @@
             if (direction === 'south') return rowIndex === 9 ? null : index + 10;
             if (direction === 'west') return colIndex === 0 ? null : index - 1;
             if (direction === 'east') return colIndex === 9 ? null : index + 1;
-        }        
-    
+        }
+
     </script>
 </body>
 
