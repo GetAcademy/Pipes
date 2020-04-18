@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipe Game</title>
+</head>
+
+<body onload="start()">
+    <div id="game"></div>
+
+    <script>
+        function start() {
+            initPipes(10);
+            checkForWin();
+            updateUserInterface();
+        }
+
+        // Model 
+        const gameModel = {
+            pipes: [],
+            path: [],
+            startIndex: 5,
+            finishIndex: 95,
+            pipeTypes: [
+                'north2south', 'west2east',
+                'south2east', 'east2north',
+                'north2west', 'west2south',
+            ],
+        };
+
+        // View
+        const pipeSymbols = {
+            north2south: '┃',
+            west2east: '━',
+            south2east: '╭',
+            east2north: '╰',
+            north2west: '╯',
+            west2south: '╮',
+        };
+
+        function updateUserInterface() {
+            let pipesHtml = '';
+            pipesHtml += createMarkerRow(gameModel.startIndex);
+            for (let i = 0; i < gameModel.pipes.length; i++) {
+                const pipe = gameModel.pipes[i];
+                const symbol = pipeSymbols[pipe];
+                const isInPath = gameModel.path.includes(i);
+                const pathCss = isInPath ? 'path' : '';
+                pipesHtml += `<div class="pipe ${pathCss}" onclick="nextSymbol(${i})">${symbol}</div>`;
+            }
+            pipesHtml += createMarkerRow(gameModel.finishIndex - 90);
+            const hasWonTxt = gameModel.hasWon ? 'Du har koblet riktig - gratulerer! 😊' : '';
+            document.getElementById('game').innerHTML = `
+                <div class="game">${pipesHtml}</div>
+                <div class="won">${hasWonTxt}</div>
+                <button onclick="location.reload()">Start på nytt</button>
+                `;
+        }
+
+        function createMarkerRow(markerIndex) {
+            let html = '';
+            for (let i = 0; i < 10; i++) {
+                const symbol = i !== markerIndex ? '' : '▼';
+                html += `<div class="pipe noBorder">${symbol}</div>`;
+            }
+            return html;
+        }
+        // Controller
+        const flip = {
+            north: 'south',
+            south: 'north',
+            east: 'west',
+            west: 'east',
+        };
+        function initPipes(size) {
+            const totalPipeCount = size * size;
+            for (let i = 0; i < totalPipeCount; i++) {
+                gameModel.pipes.push(getRandomPipe());
+            }
+            gameModel.startIndex = randomNumber(10);
+            gameModel.finishIndex = randomNumber(10) + 90;
+        }
+
+        function getRandomPipe() {
+            const maxValue = gameModel.pipeTypes.length;
+            const randomIndex = randomNumber(maxValue);
+            return gameModel.pipeTypes[randomIndex];
+        }
+
+        function randomNumber(maxValue) {
+            return Math.floor(Math.random() * maxValue);
+        }
+
+        function nextSymbol(index) {
+            const pipe = gameModel.pipes[index];
+            const pipeTypeIndex = gameModel.pipeTypes.indexOf(pipe);
+            const newPipeTypeIndex = (pipeTypeIndex + 1) % gameModel.pipeTypes.length;
+            const newPipe = gameModel.pipeTypes[newPipeTypeIndex];
+            gameModel.pipes[index] = newPipe;
+            checkForWin();
+            updateUserInterface();
+        }
+
+        function checkForWin() {
+            let currentIndex = gameModel.startIndex;
+            let direction = 'south';
+            gameModel.path = [];
+            gameModel.hasWon = false;
+            do {
+                const currentPipe = gameModel.pipes[currentIndex];
+                direction = flip[direction];
+                if (!currentPipe.includes(direction)) return;
+                gameModel.path.push(currentIndex);
+                direction = currentPipe.replace(direction, '').replace('2', '');
+                currentIndex = go(direction, currentIndex);
+            } while (currentIndex !== null);
+            const lastIndex = gameModel.path[gameModel.path.length - 1];
+            gameModel.hasWon = lastIndex === gameModel.finishIndex && gameModel.pipes[lastIndex].includes('south');
+
+        }
+
+        function go(direction, index) {
+            const rowIndex = Math.floor(index / 10);
+            const colIndex = index % 10;
+            if (direction === 'north') return rowIndex === 0 ? null : index - 10;
+            if (direction === 'south') return rowIndex === 9 ? null : index + 10;
+            if (direction === 'west') return colIndex === 0 ? null : index - 1;
+            if (direction === 'east') return colIndex === 9 ? null : index + 1;
+        }
+
+    </script>
+</body>
+
+</html>
